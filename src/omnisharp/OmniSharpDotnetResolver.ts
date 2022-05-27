@@ -12,7 +12,7 @@ import { IHostExecutableResolver } from "../constants/IHostExecutableResolver";
 import { PlatformInformation } from "../platform";
 import { Options } from "./options";
 
-const minimumDotnetVersion = semver.parse("6.0.100");
+const minimumDotnetVersion = new semver.SemVer("6.0.100");
 
 export class OmniSharpDotnetResolver implements IHostExecutableResolver {
 

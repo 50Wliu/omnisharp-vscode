@@ -9,10 +9,9 @@ import * as serverUtils from './omnisharp/utils';
 import * as vscode from 'vscode';
 import { ParsedEnvironmentFile } from './coreclr-debug/ParsedEnvironmentFile';
 
-import { AssetGenerator, AssetOperations, addTasksJsonIfNecessary, createAttachConfiguration, createFallbackLaunchConfiguration, getBuildOperations } from './assets';
+import { AssetGenerator, addTasksJsonIfNecessary, createAttachConfiguration, createFallbackLaunchConfiguration, getBuildOperations } from './assets';
 
 import { OmniSharpServer } from './omnisharp/server';
-import { WorkspaceInformationResponse } from './omnisharp/protocol';
 import { isSubfolderOf } from './common';
 import { parse } from 'jsonc-parser';
 import { MessageItem } from './vscodeAdapter';
@@ -57,7 +56,6 @@ export class CSharpConfigurationProvider implements vscode.DebugConfigurationPro
 	 * Returns a list of initial debug configurations based on contextual information, e.g. package.json or folder.
 	 */
     async provideDebugConfigurations(folder: vscode.WorkspaceFolder | undefined, token?: vscode.CancellationToken): Promise<vscode.DebugConfiguration[]> {
-
         if (!folder || !folder.uri) {
             vscode.window.showErrorMessage("Cannot create .NET debug configurations. No workspace folder was selected.");
             return [];
@@ -69,17 +67,15 @@ export class CSharpConfigurationProvider implements vscode.DebugConfigurationPro
         }
 
         try {
-            let hasWorkspaceMatches: boolean = await this.checkWorkspaceInformationMatchesWorkspaceFolder(folder);
+            const hasWorkspaceMatches = await this.checkWorkspaceInformationMatchesWorkspaceFolder(folder);
             if (!hasWorkspaceMatches) {
                 vscode.window.showErrorMessage(`Cannot create .NET debug configurations. The active C# project is not within folder '${folder.uri.fsPath}'.`);
                 return [];
             }
 
-            let info: WorkspaceInformationResponse = await serverUtils.requestWorkspaceInformation(this.server);
-
+            const info = await serverUtils.requestWorkspaceInformation(this.server);
             const generator = new AssetGenerator(info, folder);
             if (generator.hasExecutableProjects()) {
-
                 if (!await generator.selectStartupProject()) {
                     return [];
                 }
@@ -88,11 +84,11 @@ export class CSharpConfigurationProvider implements vscode.DebugConfigurationPro
                 await fs.ensureDir(generator.vscodeFolder);
 
                 // Add a tasks.json
-                const buildOperations: AssetOperations = await getBuildOperations(generator);
+                const buildOperations = await getBuildOperations(generator);
                 await addTasksJsonIfNecessary(generator, buildOperations);
 
                 const programLaunchType = generator.computeProgramLaunchType();
-                const launchJson: vscode.DebugConfiguration[] = generator.createLaunchJsonConfigurationsArray(programLaunchType);
+                const launchJson = generator.createLaunchJsonConfigurationsArray(programLaunchType);
 
                 return launchJson;
 

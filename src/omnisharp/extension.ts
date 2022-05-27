@@ -209,7 +209,8 @@ export async function activate(context: vscode.ExtensionContext, packageJSON: an
     }));
 
     // Register ConfigurationProvider
-    disposables.add(vscode.debug.registerDebugConfigurationProvider('coreclr', new CSharpConfigurationProvider(server)));
+    disposables.add(vscode.debug.registerDebugConfigurationProvider('coreclr', new CSharpConfigurationProvider(server), vscode.DebugConfigurationProviderTriggerKind.Initial));
+    disposables.add(vscode.debug.registerDebugConfigurationProvider('coreclr', new CSharpConfigurationProvider(server), vscode.DebugConfigurationProviderTriggerKind.Dynamic));
 
     context.subscriptions.push(disposables);
 
